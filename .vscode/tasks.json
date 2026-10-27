@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "stop running program",
+      "type": "shell",
+      "command": "Get-Process -Name '${fileBasenameNoExtension}' -ErrorAction SilentlyContinue | Where-Object { $_.Path -eq '${fileDirname}\\${fileBasenameNoExtension}.exe' } | Stop-Process -Force; exit 0",
+      "options": { "shell": { "executable": "powershell.exe", "args": ["-NoProfile", "-Command"] } },
+      "presentation": { "reveal": "never", "close": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "build active file",
+      "type": "process",
+      "command": "C:/msys64/mingw64/bin/g++.exe",
+      "args": ["-std=c++20", "-g", "-Wall", "-Wextra", "-static", "${file}", "-o", "${fileDirname}/${fileBasenameNoExtension}.exe"],
+      "options": {
+        "cwd": "${fileDirname}",
+        "env": { "PATH": "C:\\msys64\\mingw64\\bin;${env:PATH}" }
+      },
+      "dependsOn": "stop running program",
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    },
+    {
+      "label": "build and run active file",
+      "type": "shell",
+      "command": "& '${fileDirname}/${fileBasenameNoExtension}.exe'",
+      "options": { "cwd": "${fileDirname}" },
+      "dependsOn": "build active file",
+      "presentation": { "focus": true, "panel": "dedicated", "clear": true },
+      "problemMatcher": [],
+      "group": { "kind": "build", "isDefault": true }
+    }
+  ]
+}
